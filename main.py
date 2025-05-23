@@ -1,4 +1,7 @@
+import json
+import re
 import sys
+from types import FunctionType
 from typing import Optional, Dict, Any, List, AsyncIterator
 import os
 import httpx
@@ -15,20 +18,16 @@ load_dotenv()
 
 CLIENT_ID = os.getenv("REWARDRALLY_CLIENT_ID")
 CLIENT_SECRET = os.getenv("REWARDRALLY_CLIENT_SECRET")
-APPLICATION_ID = os.getenv("REWARDRALLY_APPLICATION_ID")
 TOKEN_STORE_PATH = os.path.join(os.path.dirname(__file__), ".tokens")
 
 BASE_URL = "https://stage-gamificationapi.rewardrally.in"
 AUTH_URL = f"{BASE_URL}/v1/tokens/accesstoken"
 CLIENTS_URL = f"{BASE_URL}/v1/clients"
-USERS_URL = f"{BASE_URL}/v1/users/application/{APPLICATION_ID}"
-LEADERBOARD_URL = f"{BASE_URL}/leaderBoard/application/{APPLICATION_ID}/rank/1000"
 
 app = FastAPI(title="RewardRally MCP Auth Handler")
 
 @dataclass
 class RewardRallyContext:
-    """Holds access token and API client"""
     token: str
     http_client: httpx.AsyncClient
     app: FastAPI
@@ -39,7 +38,7 @@ def save_token(token: str):
         with open(TOKEN_STORE_PATH, "w") as f:
             f.write(token)
     except Exception as e:
-        print(f"Failed to save token: {e}",file=sys.stderr)
+        print(f"Failed to save token: {e}", file=sys.stderr)
 
 def load_token() -> Optional[str]:
     try:
@@ -63,8 +62,8 @@ async def fetch_access_token() -> str:
 
 @asynccontextmanager
 async def rewardrally_lifespan(server: FastMCP) -> AsyncIterator[RewardRallyContext]:
-    print("Initializing RewardRally context...",file=sys.stderr)
-    
+    print("Initializing RewardRally context...", file=sys.stderr)
+
     if not CLIENT_ID or not CLIENT_SECRET:
         raise ValueError("REWARDRALLY_CLIENT_ID and REWARDRALLY_CLIENT_SECRET must be set in the .env")
 
@@ -78,17 +77,17 @@ async def rewardrally_lifespan(server: FastMCP) -> AsyncIterator[RewardRallyCont
         try:
             r = await http_client.get(CLIENTS_URL)
             if r.status_code == 200:
-                print("Restored previous session",file=sys.stderr)
+                print("Restored previous session", file=sys.stderr)
                 valid = True
         except Exception:
-            print("Previous token invalid",file=sys.stderr)
+            print("Previous token invalid", file=sys.stderr)
 
     if not valid:
-        print("Fetching new token...",file=sys.stderr)
+        print("Fetching new token...", file=sys.stderr)
         token = await fetch_access_token()
         save_token(token)
         http_client.headers["Authorization"] = f"Bearer {token}"
-        print("Access token acquired and saved",file=sys.stderr)
+        print("Access token acquired and saved", file=sys.stderr)
 
     ctx = RewardRallyContext(
         token=token,
@@ -100,7 +99,7 @@ async def rewardrally_lifespan(server: FastMCP) -> AsyncIterator[RewardRallyCont
         yield ctx
     finally:
         await http_client.aclose()
-        print("Shutting down RewardRally context",file=sys.stderr)
+        print("Shutting down RewardRally context", file=sys.stderr)
 
 mcp = FastMCP(
     "rewardrally",
@@ -108,51 +107,60 @@ mcp = FastMCP(
     dependencies=["fastapi", "uvicorn", "httpx", "python-dotenv", "mcp-server"],
 )
 
-@mcp.tool()
-async def get_clients(ctx: Context) -> Dict[str, Any]:
-    """Get list of clients from RewardRally"""
-    rr_ctx: RewardRallyContext = ctx.request_context.lifespan_context
-    try:
-        print(rr_ctx.token,file=sys.stderr)
-        r = await rr_ctx.http_client.get(CLIENTS_URL)
-        r.raise_for_status()
-        if r.status_code != 200:
-            raise Exception(f"Failed to fetch clients: {r.text}")
-        print(r.json(),file=sys.stderr)
-        return r.json()
-    except httpx.HTTPStatusError as e:
-        return {"error": f"HTTP Error: {str(e)}"}
-    except Exception as e:
-        return {"error": str(e)}
-@mcp.tool()
-async def get_users_by_appid(ctx: Context) -> Dict[str, Any]:
-    """Get list of users from RewardRally by app ID"""
-    rr_ctx: RewardRallyContext = ctx.request_context.lifespan_context
-    try:
-        print(rr_ctx.token,file=sys.stderr)
-        r = await rr_ctx.http_client.get(USERS_URL)
-        r.raise_for_status()
-        print(r.json(),file=sys.stderr)
-        return r.json()
-    except httpx.HTTPStatusError as e:
-        return {"error": f"HTTP Error: {str(e)}"}
-    except Exception as e:
-        return {"error": str(e)}
-@mcp.tool()
-async def get_leaderboard(ctx: Context) -> Dict[str, Any]:
-    """ Get leaderboard from RewardRally"""
-    rr_ctx: RewardRallyContext = ctx.request_context.lifespan_context
-    try:
-        print(rr_ctx.token,file=sys.stderr)
-        r = await rr_ctx.http_client.get(LEADERBOARD_URL)
-        r.raise_for_status()
-        print(r.json(),file=sys.stderr)
-        return r.json()
-    except httpx.HTTPStatusError as e:
-        return {"error": f"HTTP Error: {str(e)}"}
-    except Exception as e:
-        return {"error": str(e)}
+with open("/Users/balaji/Documents/Projects/POC/MCP/reward-rally-mcp/swagger.json") as f:
+    swagger_spec = json.load(f)
+
+# Generate tools dynamically from swagger
+for path, methods in swagger_spec.get("paths", {}).items():
+    for method, details in methods.items():
+        func_name = f"{method}_{path.strip('/').replace('/', '_').replace('{', '').replace('}', '')}"
+        summary = details.get("summary", "No summary provided")
+        parameters = details.get("parameters", [])
+
+        path_keys = [p["name"] for p in parameters if p.get("in") == "path"]
+        body_required = any(p.get("in") == "body" for p in parameters)
+
+        def create_tool(path=path, method=method.upper(), summary=summary, parameters=parameters, func_name=func_name, path_keys=path_keys, body_required=body_required):
+            @mcp.tool(name=func_name)
+            async def dynamic_tool(ctx: Context, **kwargs) -> Dict[str, Any]:
+                rr_ctx = ctx.request_context.lifespan_context
+                filled_path = path
+                kwargs = kwargs.get("kwargs", {})
+                for key in path_keys:
+                    if key not in kwargs:
+                        raise ValueError(f"Missing required path parameter: {key}")
+                    filled_path = filled_path.replace("{" + key + "}", str(kwargs[key]))
+                url = f"{BASE_URL}{filled_path}"
+                headers = {"Authorization": f"Bearer {rr_ctx.token}"}
+
+                print(f"[Token]: {rr_ctx.token}", file=sys.stderr)
+                print(f"[URL]: {url}", file=sys.stderr)
+
+                try:
+                    if method == "GET":
+                        r = await rr_ctx.http_client.get(url, headers=headers)
+                    else:
+                        payload = kwargs.get("payload") if body_required else None
+                        if payload:
+                            print(f"[Payload]: {payload}", file=sys.stderr)
+                        r = await rr_ctx.http_client.request(method, url, headers=headers, json=payload)
+
+                    r.raise_for_status()
+                    print(f"[Response]: {r.json()}", file=sys.stderr)
+                    return r.json()
+
+                except httpx.HTTPStatusError as e:
+                    return {"error": f"HTTP Error: {str(e)}"}
+                except Exception as e:
+                    return {"error": str(e)}
+
+            dynamic_tool.__doc__ = summary
+            dynamic_tool.__name__ = func_name
+            return dynamic_tool
+
+        # Register tool in global scope
+        globals()[func_name] = create_tool()
 
 if __name__ == "__main__":
-    print("Starting RewardRally MCP server...",file=sys.stderr)
+    print("Starting RewardRally MCP server...", file=sys.stderr)
     mcp.run()

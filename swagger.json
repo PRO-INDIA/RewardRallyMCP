@@ -1,66 +1,998 @@
 {
-  "/v1/tokens/accessToken": {
-    "post": {
-      "security": [
-        {
-          "bearerAuth": []
-        }
-      ],
-      "tags": ["Bearer Tokens"],
-      "summary": "Get Tokens",
-      "parameters": [
-        {
-          "name": "Client Credentials",
-          "in": "body",
-          "description": "Get Client Id and Client Secret",
-          "required": true,
-          "schema": {
-            "$ref": "#/definitions/clientCredentials"
+  "paths": {
+    "/v1/tokens/accessToken": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
           }
-        }
-      ],
-      "responses": {
-        "200": {
-          "description": "OK"
-        },
-        "500": {
-          "description": "Server Error"
+        ],
+        "tags": ["Bearer Tokens"],
+        "summary": "Get Tokens",
+        "parameters": [
+          {
+            "name": "Client Credentials",
+            "in": "body",
+            "description": "Get Client Id and Client Secret",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/clientCredentials"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Server Error"
+          }
         }
       }
-    }
-  },
-  "/v1/users/addUser": {
-    "post": {
-      "security": [
-        {
-          "bearerAuth": []
-        }
-      ],
-      "tags": ["users"],
-      "summary": "Add User",
-      "parameters": [
-        {
-          "name": "body",
-          "in": "body",
-          "description": "user Data",
-          "required": true,
-          "schema": {
-            "$ref": "#/definitions/createUsersModel"
+    },
+    "/v1/users/addUser": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["users"],
+        "summary": "Add User",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "user Data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/createUsersModel"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
           }
         }
-      ],
-      "responses": {
-        "201": {
-          "description": "Created"
-        },
-        "400": {
-          "description": "Bad Request"
-        },
-        "409": {
-          "description": "Conflict"
-        },
-        "500": {
-          "description": "Server Error"
+      }
+    },
+    "/users/{userId}/{appId}": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["users"],
+        "summary": "get User By UserId And AppId",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "userId",
+            "required": true
+          },
+          {
+            "name": "appId",
+            "in": "path",
+            "description": "appId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/v1/users/file": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["users"],
+        "summary": "Upload users file as CSV",
+        "consumes": ["multipart/form-data"],
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "file",
+            "type": "file",
+            "description": "The file to upload."
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/v1/users/add/userList": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["users"],
+        "summary": "add User List",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "userList",
+            "required": ["userList"],
+            "properties": {
+              "userList": {
+                "type": "array",
+                "description": "userList",
+                "items": {
+                  "$ref": "#/definitions/createUsersModel"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/v1/users/updateUser": {
+      "put": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["users"],
+        "summary": "Update User By Id",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "user Data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/updateUsersModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/v1/users/update/{userId}/application/{appId}": {
+      "put": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["users"],
+        "summary": "Update User By UserId & AppId",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "user Id",
+            "required": true
+          },
+          {
+            "name": "appId",
+            "in": "path",
+            "description": "Application Id",
+            "required": true
+          },
+          {
+            "name": "user",
+            "in": "body",
+            "description": "new user Data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/createUsersModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/v1/users/application/{applicationId}/{pageNo}/{itemPerPage}": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["users"],
+        "summary": "Update User By Id",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "description": "applicationId",
+            "required": true
+          },
+          {
+            "name": "pageNo",
+            "in": "path",
+            "description": "pageNo"
+          },
+          {
+            "name": "itemPerPage",
+            "in": "path",
+            "description": "itemPerPage"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/leaderBoard/application/{appId}/rank/{rank}": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["leaderBoards"],
+        "summary": "Get Top N Rank Holders By App Id",
+        "parameters": [
+          {
+            "name": "appId",
+            "in": "path",
+            "description": "Application Id",
+            "required": true
+          },
+          {
+            "name": "rank",
+            "in": "path",
+            "description": "Rank",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/v1/leaderBoard/filterByCustomAttr/application/{applicationId}": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["leaderBoards"],
+        "summary": "Find All Custom Attributes",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "description": "Application Id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/leaderBoard/userScore": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["leaderBoards"],
+        "summary": "Get Individual User Score",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "user Data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/userInputData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/leaderBoard/userLeaderBoard": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["leaderBoards"],
+        "summary": "Get User LeaderBoard",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "user Data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/userInputData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/leaderBoard/userRewards": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["leaderBoards"],
+        "summary": "Get User Rewards",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "user Data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/userInputData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/v1/leaderBoard/byCustomAttributes/{pageNo}/{itemPerPage}": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["leaderBoards"],
+        "summary": "Get User LeaderBoard based on Custom Attributes And Pagination",
+        "parameters": [
+          {
+            "name": "pageNo",
+            "in": "path",
+            "description": "Page No",
+            "required": false
+          },
+          {
+            "name": "itemPerPage",
+            "in": "path",
+            "description": "Items Per Page",
+            "required": false
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Custom Attributes",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/customAttrData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/leaderBoard/byCustomAttributes/application/{appId}/rank/{rank}": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["leaderBoards"],
+        "summary": "Get Top N Rank Holders By App Id And CustomAttributes",
+        "parameters": [
+          {
+            "name": "appId",
+            "in": "path",
+            "description": "Application Id",
+            "required": true
+          },
+          {
+            "name": "rank",
+            "in": "path",
+            "description": "Rank",
+            "required": true
+          },
+          {
+            "name": "customAttributes",
+            "in": "body",
+            "description": "CustomAttributes",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/customAttributes"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/userCompletedGame/triggerGameAction": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["userCompletedGames"],
+        "summary": "Trigger Game Action",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Custom Attributes",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/triggerGameActionModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/privilegeStage/user/application/lookup/{applicationId}": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["privilegeStages"],
+        "summary": "Get Privilege Stages By Application Id",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "description": "Application Id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/v1/privilegeStage": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["privilegeStages"],
+        "summary": "Add Privilege Stages",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Privilege Stages",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/createPrivilegeStagesModel"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/v1/privilegeStage/{id}": {
+      "put": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["privilegeStages"],
+        "summary": "Update Privilege Stages",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "privilegeStage Id",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Privilege Stages",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/createPrivilegeStagesModel"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Updated"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/v1/gameAction/application/{applicationId}": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["gameActions"],
+        "summary": "Get Game Actions By Application Id",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "in": "path",
+            "description": "Application Id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/v1/gameAction/{id}": {
+      "put": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["gameActions"],
+        "summary": "Update gameAction by Id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "gameActionId",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "gameActions",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/updateGameActionsModel"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Updated"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/v1/gameAction": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["gameActions"],
+        "summary": "Add gameAction",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "gameActions",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/createGameActionsModel"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/v1/applications/application/{id}": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["Application"],
+        "summary": "Get application by AppId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "applicationId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/v1/applications/projectId/{id}/{pageNo}/{itemPerPage}": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["Application"],
+        "summary": "Get applications by ProjectId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "projectId",
+            "required": true
+          },
+          {
+            "name": "pageNo",
+            "in": "path",
+            "description": "pageNo",
+            "required": true
+          },
+          {
+            "name": "itemPerPage",
+            "in": "path",
+            "description": "itemPerPage",
+            "required": true
+          },
+          {
+            "name": "searchQuery",
+            "in": "path",
+            "description": "Application name to be searched",
+            "schema": {
+              "type": "string"
+            },
+            "default": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/v1/applications": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["Application"],
+        "summary": "Create Application",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Applications",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/createApplicationModel"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/v1/applications/{id}": {
+      "put": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": ["Application"],
+        "summary": "Update Application",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Applications",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/updateApplicationModel"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    },
+    "/sasToken": {
+      "get": {
+        "tags": ["sasToken"],
+        "summary": "Get SasToken",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Server Error"
+          }
         }
       }
     }

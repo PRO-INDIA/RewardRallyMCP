@@ -1,8 +1,6 @@
 import json
-import re
 import sys
-from types import FunctionType
-from typing import Optional, Dict, Any, List, AsyncIterator
+from typing import Optional, Dict, Any, AsyncIterator
 import os
 import httpx
 from contextlib import asynccontextmanager
@@ -133,7 +131,6 @@ for path, methods in swagger_spec.get("paths", {}).items():
                 url = f"{BASE_URL}{filled_path}"
                 headers = {"Authorization": f"Bearer {rr_ctx.token}"}
 
-                print(f"[Token]: {rr_ctx.token}", file=sys.stderr)
                 print(f"[URL]: {url}", file=sys.stderr)
 
                 try:
@@ -146,7 +143,6 @@ for path, methods in swagger_spec.get("paths", {}).items():
                         r = await rr_ctx.http_client.request(method, url, headers=headers, json=payload)
 
                     r.raise_for_status()
-                    print(f"[Response]: {r.json()}", file=sys.stderr)
                     return r.json()
 
                 except httpx.HTTPStatusError as e:

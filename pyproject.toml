@@ -1,0 +1,12 @@
+[project]
+name = "reward-rally-mcp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.12",
+    "mcp[cli]>=1.9.0",
+    "python-dotenv>=1.1.0",
+    "requests>=2.32.3",
+]

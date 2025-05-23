@@ -1,0 +1,68 @@
+{
+  "/v1/tokens/accessToken": {
+    "post": {
+      "security": [
+        {
+          "bearerAuth": []
+        }
+      ],
+      "tags": ["Bearer Tokens"],
+      "summary": "Get Tokens",
+      "parameters": [
+        {
+          "name": "Client Credentials",
+          "in": "body",
+          "description": "Get Client Id and Client Secret",
+          "required": true,
+          "schema": {
+            "$ref": "#/definitions/clientCredentials"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "OK"
+        },
+        "500": {
+          "description": "Server Error"
+        }
+      }
+    }
+  },
+  "/v1/users/addUser": {
+    "post": {
+      "security": [
+        {
+          "bearerAuth": []
+        }
+      ],
+      "tags": ["users"],
+      "summary": "Add User",
+      "parameters": [
+        {
+          "name": "body",
+          "in": "body",
+          "description": "user Data",
+          "required": true,
+          "schema": {
+            "$ref": "#/definitions/createUsersModel"
+          }
+        }
+      ],
+      "responses": {
+        "201": {
+          "description": "Created"
+        },
+        "400": {
+          "description": "Bad Request"
+        },
+        "409": {
+          "description": "Conflict"
+        },
+        "500": {
+          "description": "Server Error"
+        }
+      }
+    }
+  }
+}

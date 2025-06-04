@@ -18,7 +18,7 @@ CLIENT_ID = os.getenv("REWARDRALLY_CLIENT_ID")
 CLIENT_SECRET = os.getenv("REWARDRALLY_CLIENT_SECRET")
 TOKEN_STORE_PATH = os.path.join(os.path.dirname(__file__), ".tokens")
 
-BASE_URL = "https://stage-gamificationapi.rewardrally.in"
+BASE_URL = os.getenv("BASE_URL")
 AUTH_URL = f"{BASE_URL}/v1/tokens/accesstoken"
 CLIENTS_URL = f"{BASE_URL}/v1/clients"
 
@@ -105,7 +105,7 @@ mcp = FastMCP(
     dependencies=["fastapi", "uvicorn", "httpx", "python-dotenv", "mcp-server"],
 )
 
-with open("/Users/balaji/Documents/Projects/POC/MCP/reward-rally-mcp/swagger.json") as f:
+with open("./swagger.json") as f:
     swagger_spec = json.load(f)
 
 # Generate tools dynamically from swagger
@@ -156,7 +156,7 @@ for path, methods in swagger_spec.get("paths", {}).items():
 
         # Register tool in global scope
         globals()[func_name] = create_tool()
-
 if __name__ == "__main__":
     print("Starting RewardRally MCP server...", file=sys.stderr)
     mcp.run()
+    # uvicorn.run("main:app", host="0.0.0.0", port=5000, reload=False)

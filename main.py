@@ -66,26 +66,25 @@ async def rewardrally_lifespan(server: FastMCP) -> AsyncIterator[RewardRallyCont
         raise ValueError("REWARDRALLY_CLIENT_ID and REWARDRALLY_CLIENT_SECRET must be set in the .env")
 
     token = load_token()
-    valid = False
 
     http_client = httpx.AsyncClient(headers={"Content-Type": "application/json"})
 
-    if token:
-        http_client.headers["Authorization"] = f"Bearer {token}"
-        try:
-            r = await http_client.get(CLIENTS_URL)
-            if r.status_code == 200:
-                print("Restored previous session", file=sys.stderr)
-                valid = True
-        except Exception:
-            print("Previous token invalid", file=sys.stderr)
+    # if token:
+    #     http_client.headers["Authorization"] = f"Bearer {token}"
+    #     try:
+    #         r = await http_client.get(CLIENTS_URL)
+    #         if r.status_code == 200:
+    #             print("Restored previous session", file=sys.stderr)
+    #             valid = True
+    #     except Exception:
+    #         print("Previous token invalid", file=sys.stderr)
 
-    if not valid:
-        print("Fetching new token...", file=sys.stderr)
-        token = await fetch_access_token()
-        save_token(token)
-        http_client.headers["Authorization"] = f"Bearer {token}"
-        print("Access token acquired and saved", file=sys.stderr)
+    # if not valid:
+    #     print("Fetching new token...", file=sys.stderr)
+    #     token = await fetch_access_token()
+    #     save_token(token)
+    #     http_client.headers["Authorization"] = f"Bearer {token}"
+    #     print("Access token acquired and saved", file=sys.stderr)
 
     ctx = RewardRallyContext(
         token=token,
@@ -107,6 +106,40 @@ mcp = FastMCP(
 
 with open("./swagger.json") as f:
     swagger_spec = json.load(f)
+
+
+@mcp.tool()
+async def initiate_login(ctx: Context) -> Dict[str, Any]:
+    """
+    Initiates the login flow for Reward Rally by fetching an access token.
+    """
+    try:
+        # Reset the request token
+        global _request_token
+        _request_token = None
+
+        # Get strongly typed context
+        rr_ctx: RewardRallyContext = ctx.request_context.lifespan_context
+        http_client = rr_ctx.http_client
+
+        if not CLIENT_ID or not CLIENT_SECRET:
+            error_msg = "REWARDRALLY_CLIENT_ID and REWARDRALLY_CLIENT_SECRET must be set in the .env"
+            print(error_msg, file=sys.stderr)
+            return {"error": error_msg}
+
+        token = await fetch_access_token()
+        save_token(token)
+        http_client.headers["Authorization"] = f"Bearer {token}"
+        rr_ctx.token = token
+        print("Access token acquired and saved", file=sys.stderr)
+        return {
+            "message": "Access token acquired successfully",
+            "token": token
+        }
+    except httpx.HTTPStatusError as e:
+        error_msg = f"HTTP Error during login: {str(e)}"
+        print(error_msg, file=sys.stderr)
+        return {"error": error_msg}
 
 # Generate tools dynamically from swagger
 for path, methods in swagger_spec.get("paths", {}).items():

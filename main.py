@@ -101,7 +101,7 @@ async def rewardrally_lifespan(server: FastMCP) -> AsyncIterator[RewardRallyCont
 mcp = FastMCP(
     "rewardrally",
     lifespan=rewardrally_lifespan,
-    dependencies=["fastapi", "uvicorn", "httpx", "python-dotenv", "mcp-server"],
+    dependencies=["fastapi", "uvicorn", "httpx", "python-dotenv"],
 )
 
 with open("./swagger.json") as f:

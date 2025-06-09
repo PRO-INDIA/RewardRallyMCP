@@ -152,7 +152,7 @@ for path, methods in swagger_spec.get("paths", {}).items():
         body_required = any(p.get("in") == "body" for p in parameters)
 
         def create_tool(path=path, method=method.upper(), summary=summary, parameters=parameters, func_name=func_name, path_keys=path_keys, body_required=body_required):
-            @mcp.tool(name=func_name)
+            @mcp.tool(name=func_name, description=summary)
             async def dynamic_tool(ctx: Context, **kwargs) -> Dict[str, Any]:
                 rr_ctx = ctx.request_context.lifespan_context
                 filled_path = path

@@ -1,0 +1,32 @@
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    required:
+      - rewardRallyClientId
+      - rewardRallyClientSecret
+      - baseUrl
+    properties:
+      rewardRallyClientId:
+        type: string
+        description: RewardRally Client ID
+      rewardRallyClientSecret:
+        type: string
+        description: RewardRally Client Secret
+      baseUrl:
+        type: string
+        description: Base URL of the RewardRally API
+  commandFunction: |-
+    (config) => ({
+      command: 'python',
+      args: ['main.py'],
+      env: {
+        REWARDRALLY_CLIENT_ID: config.rewardRallyClientId,
+        REWARDRALLY_CLIENT_SECRET: config.rewardRallyClientSecret,
+        BASE_URL: config.baseUrl
+      }
+    })
+  exampleConfig:
+    rewardRallyClientId: your_client_id_here
+    rewardRallyClientSecret: your_client_secret_here
+    baseUrl: https://api.rewardrally.io

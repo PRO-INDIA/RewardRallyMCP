@@ -1,0 +1,24 @@
+{
+  "servers": {
+    "reward-rally": {
+      "type": "stdio",
+      "command": "“uv”,",
+      "args": [
+        "“run”,",
+        "“--with”,",
+        "“fastapi”,",
+        "“--with”,",
+        "“httpx”,",
+        "“--with”,",
+        "“mcp-server”,",
+        "“--with”,",
+        "“mcp[cli]”,",
+        "“--with”,",
+        "“python-dotenv”,",
+        "“mcp”,",
+        "“run”,",
+        "“main.py”]"
+      ]
+    }
+  }
+}
